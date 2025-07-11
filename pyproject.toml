@@ -1,0 +1,210 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pain-coach-ai-pascal"
+version = "1.0.0"
+description = "AI-powered chronic pain management assistant optimized for M3 Max"
+authors = [
+    { name = "Pain Coach AI Team", email = "team@paincoach.ai" }
+]
+readme = "README.md"
+license = { text = "GPL-3.0" }
+keywords = ["ai", "healthcare", "pain-management", "mlx", "m3-max"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+requires-python = ">=3.11"
+dependencies = [
+    # Core dependencies
+    "fastapi[all]>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "alembic>=1.13.0",
+    
+    # AI/ML dependencies
+    "mlx>=0.15.0",
+    "mlx-lm>=0.8.0",
+    "torch>=2.1.0",
+    "transformers>=4.36.0",
+    "datasets>=2.15.0",
+    "peft>=0.7.0",
+    "unsloth>=2023.12",
+    
+    # Audio processing
+    "faster-whisper>=0.10.0",
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12.1",
+    "webrtcvad>=2.0.10",
+    "style-bert-vits2>=2.0.0",
+    
+    # Data processing
+    "duckdb>=0.9.0",
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    
+    # Encryption and security
+    "cryptography>=41.0.0",
+    "keyring>=24.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-jose[cryptography]>=3.3.0",
+    
+    # HTTP and integrations
+    "aiohttp>=3.9.0",
+    "httpx>=0.25.0",
+    "requests>=2.31.0",
+    
+    # Utilities
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0.1",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "psutil>=5.9.0",
+    
+    # Monitoring and logging
+    "structlog>=23.2.0",
+    "prometheus-client>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.0",
+    "pre-commit>=3.6.0",
+]
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "myst-parser>=2.0.0",
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "factory-boy>=3.3.0",
+    "faker>=20.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/paincoach/pain-coach-ai-pascal"
+Documentation = "https://docs.paincoach.ai"
+Repository = "https://github.com/paincoach/pain-coach-ai-pascal"
+Issues = "https://github.com/paincoach/pain-coach-ai-pascal/issues"
+
+[project.scripts]
+pain-coach = "pain_coach.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "api*"]
+exclude = ["tests*", "frontend*", "docs*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | frontend
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mlx.*",
+    "faster_whisper.*",
+    "webrtcvad.*",
+    "sounddevice.*",
+    "soundfile.*",
+    "duckdb.*",
+    "keyring.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "ai: marks tests that require AI models",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["core", "api"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\bProtocol\):",
+    "@(abc\.)?abstractmethod",
+]
